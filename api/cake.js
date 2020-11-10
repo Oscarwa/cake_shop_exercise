@@ -13,7 +13,7 @@ router.get('/:id', async (req, res) => {
     if(cake) {
         res.json(cake);
     }
-    res.status(404).send();
+    res.status(404).send('Cake not found');
 });
 
 router.post('/', async (req, res) => {
@@ -23,15 +23,13 @@ router.post('/', async (req, res) => {
         const key = model.name.toString().toLowerCase().split(' ').join('-');
         const cake = await cakeService.get(key);
         if(cake) {
-            console.log(`duplicated cake key`, key);
-            res.status(400).send();
+            res.status(400).send(`duplicated cake key`, key);
         } else {
-            console.log(cakeService)
             const createdCake = await cakeService.create(key, model);
             res.json(createdCake);
         }
     }
-    res.status(400).send();
+    res.status(400).send('You need to include at least a "name" property');
 });
 
 router.delete('/:id', async (req, res) => {
@@ -42,7 +40,7 @@ router.delete('/:id', async (req, res) => {
     if(cakeRes) {
         res.json("success")
     }
-    res.status(404).send();
+    res.status(404).send('Cake not found');
 });
 
 router.patch('/:id', async (req, res) => {
@@ -54,7 +52,7 @@ router.patch('/:id', async (req, res) => {
         const updatedCake = await cakeService.update(id, model);
         res.json(updatedCake);
     } else {
-        res.status(404).send();
+        res.status(404).send('Cake not found');
     }
 
 });
