@@ -1,60 +1,58 @@
 const express = require('express');
 const router = express.Router();
+const cakeService = require('../service/cake')
 
-/**
- * Memory storage for the cakes
- */
-const cakeList = new Map();
-
-router.get('/', (req, res) => {
-    res.json(Array.from(cakeList.values()));
+router.get('/', async (req, res) => {
+    const cakes = await cakeService.getAll();
+    res.json(cakes);
 });
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     const idParam = req.params.id;
     const id = idParam.toString().toLowerCase().split(' ').join('-');
-
-    if(cakeList.has(id)) {
-        res.json(cakeList.get(id));
+    const cake = await cakeService.get(id);
+    if(cake) {
+        res.json(cake);
     }
     res.status(404).send();
-    
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     const model = req.body;
     
     if(model.name) { 
         const key = model.name.toString().toLowerCase().split(' ').join('-');
-        if(cakeList.has(key)) {
+        const cake = await cakeService.get(key);
+        if(cake) {
             console.log(`duplicated cake key`, key);
             res.status(400).send();
         } else {
-            cakeList.set(key, model);
+            console.log(cakeService)
+            const createdCake = await cakeService.create(key, model);
+            res.json(createdCake);
         }
     }
-
-    res.json(model);
+    res.status(400).send();
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
     const idParam = req.params.id;
     const id = idParam.toString().toLowerCase().split(' ').join('-');
 
-    if(cakeList.has(id)) {
-        cakeList.delete(id);
-        res.json('success');
+    const cakeRes = await cakeService.remove(id);
+    if(cakeRes) {
+        res.json("success")
     }
     res.status(404).send();
 });
 
-router.patch('/:id', (req, res) => {
+router.patch('/:id', async (req, res) => {
     const idParam = req.params.id;
     const id = idParam.toString().toLowerCase().split(' ').join('-');
-
-    if(cakeList.has(id)) { 
+    const cake = await cakeService.get(id);
+    if(cake) { 
         const model = req.body;
-        cakeList.set(id, model);
-        res.json(model);
+        const updatedCake = await cakeService.update(id, model);
+        res.json(updatedCake);
     } else {
         res.status(404).send();
     }
