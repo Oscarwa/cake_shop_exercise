@@ -1,10 +1,13 @@
 const express = require('express');
+const cors = require('cors');
+require('dotenv').config({silent: true});
+
 const cakeRoute = require('./api/cake');
-require('dotenv').config();
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 app.use('/cakes', cakeRoute);
 
